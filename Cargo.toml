@@ -1,0 +1,10 @@
+[package]
+name = "hitEmu"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+macroquad = "0.4.15"
+
+log = "0.4"
+env_logger = "0.11"
