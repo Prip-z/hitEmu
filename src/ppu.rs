@@ -149,7 +149,6 @@ impl Ppu {
 
         match self.scanline {
             -1..=239 => {
-                // Выборка и сдвиги фона происходят как при активном рендере, так и при префетче (321..336)
                 if (1..=256).contains(&self.cycle) || (321..=336).contains(&self.cycle) {
                     self.fetch_bg_data();
                     
@@ -160,10 +159,8 @@ impl Ppu {
                     }
 
                     if rendering_enabled {
-                        // Сдвигаем регистры на каждом активном такте
                         self.shift_bg_registers();
                         
-                        // Загружаем данные строго ПОСЛЕ того, как завершился 8-й сдвиг текущего тайла!
                         if self.cycle % 8 == 0 {
                             self.load_bg_shift_registers();
                         }
@@ -171,7 +168,6 @@ impl Ppu {
                 }
 
                 if rendering_enabled {
-                    // Копирование горизонтального скролла на 257-м цикле
                     if self.cycle == 257 {
                         self.v = (self.v & !0x041F) | (self.t & 0x041F);
                         if self.scanline != -1 {
@@ -180,7 +176,6 @@ impl Ppu {
                         }
                     }
 
-                    // Копирование вертикального скролла в конце пререндера
                     if self.scanline == -1 && (280..=304).contains(&self.cycle) {
                         self.v = (self.v & !0x7BE0) | (self.t & 0x7BE0);
                     }
@@ -365,8 +360,6 @@ impl Ppu {
                 self.bg_next_pattern_high = self.read_ppu_address(address);
             }
             0 => {
-                // Из этой ветки вызов load_bg_shift_registers() удален.
-                // Он теперь вызывается строго в step() после завершения сдвигов.
                 self.increment_scroll_x();
                 if (self.cycle == 256) && (self.mask & 0x18 != 0) {
                     self.increment_scroll_y();
@@ -488,8 +481,6 @@ impl Ppu {
 
     fn get_palette_index(&self, address: u16) -> usize {
         let mut palette_addr = (address & 0x001F) as usize;
-        // Корректное аппаратное зеркалирование палитр:
-        // $3F10, $3F14, $3F18, $3F1C зеркалируются на $3F00, $3F04, $3F08, $3F0C соответственно.
         if palette_addr >= 0x10 && (palette_addr % 4 == 0) {
             palette_addr -= 0x10;
         }

@@ -128,14 +128,13 @@ impl Cpu
 
     pub fn nmi(&mut self, bus: &mut impl Bus) {
         self.push_u16(bus, self.pc);
-        let status_byte = (self.p.to_byte() & !0x10) | 0x20; // B-flag = 0, Unused = 1
+        let status_byte = (self.p.to_byte() & !0x10) | 0x20; 
         self.push_u8(bus, status_byte);
-        self.p.interrupt = true; // Запрещаем маскируемые прерывания
+        self.p.interrupt = true;
         self.pc = ((bus.read(0xFFFB) as u16) << 8) | (bus.read(0xFFFA) as u16);
         self.cycles += 7;
     }
 
-    // Можно функцию сделать невозвратной если в main обращаться self.cycles ну короче когда мне не похер будет я этим займусь.
     pub fn make_step_and_return_cycles(&mut self, bus: &mut impl Bus) -> u64{
         let cycle_old = self.cycles;
         let opcode = bus.read(self.pc);
@@ -381,9 +380,9 @@ impl Cpu
 
     fn push_u16(&mut self, bus: &mut impl Bus, value: u16) {
         // В 6502 стек растет вниз (от 0x01FF к 0x0100)
-        bus.write(0x0100 + self.sp as u16, (value >> 8) as u8); // Сначала High
+        bus.write(0x0100 + self.sp as u16, (value >> 8) as u8); 
         self.sp = self.sp.wrapping_sub(1);
-        bus.write(0x0100 + self.sp as u16, (value & 0xFF) as u8); // Потом Low
+        bus.write(0x0100 + self.sp as u16, (value & 0xFF) as u8); 
         self.sp = self.sp.wrapping_sub(1);
     }
 
@@ -512,7 +511,7 @@ impl Cpu
         let value = bus.read(addr);
         self.p.zero = (self.a & value) == 0;
         self.p.negative = (value & 0x80) != 0;
-        self.p.overflow = (value & 0x40) != 0; // <-- Нужно установить 6-й бит
+        self.p.overflow = (value & 0x40) != 0; 
     }
 
     fn bmi(&mut self, bus: &mut impl Bus) {
