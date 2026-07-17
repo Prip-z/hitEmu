@@ -120,7 +120,6 @@ impl Ppu {
     }
 
     pub fn step(&mut self) {
-        // Корректный пропуск цикла на нечетном кадре без двойного инкремента
         if self.scanline == -1 && self.cycle == 0 && self.odd_frame && (self.mask & 0x18) != 0 {
             self.cycle = 1;
         } else {
@@ -128,14 +127,13 @@ impl Ppu {
             if self.cycle >= 341 {
                 self.cycle = 0;
                 self.scanline = self.scanline.wrapping_add(1);
-                if self.scanline > 261 {
+                if self.scanline > 260 {
                     self.scanline = -1;
                     self.odd_frame = !self.odd_frame;
                 }
             }
         }
 
-        // Установка флага VBlank на 241-й строке
         if self.scanline == 241 && self.cycle == 1 {
             self.status |= 0x80;
             if (self.ctrl & 0x80) != 0 {
@@ -143,7 +141,6 @@ impl Ppu {
             }
         }
 
-        // Очистка флагов рендеринга на пререндер-строке
         if self.scanline == -1 && self.cycle == 1 {
             self.status &= !0xE0;
         }

@@ -132,6 +132,7 @@ impl Cpu
         self.push_u8(bus, status_byte);
         self.p.interrupt = true; // Запрещаем маскируемые прерывания
         self.pc = ((bus.read(0xFFFB) as u16) << 8) | (bus.read(0xFFFA) as u16);
+        self.cycles += 7;
     }
 
     // Можно функцию сделать невозвратной если в main обращаться self.cycles ну короче когда мне не похер будет я этим займусь.
@@ -820,7 +821,7 @@ impl Cpu
 
     fn asl(&mut self, bus: &mut impl Bus, addressing_mode: AddressingMode) {
         if addressing_mode == AddressingMode::Accumulator {
-            let result: u16 = (self.a << 1) as u16;
+            let result: u16 = (self.a as u16) << 1;
             self.a = self.update_carry_and_return_u8_result(result);
             self.update_zero_and_negative_flags(self.a);
         }
@@ -828,7 +829,7 @@ impl Cpu
             let address = self.get_operand_address(bus, addressing_mode, true);
             let value = bus.read(address);
             
-            let result_u16: u16 = (value << 1) as u16;
+            let result_u16: u16 = (value as u16) << 1;
             let result_u8 = self.update_carry_and_return_u8_result(result_u16);
             self.update_zero_and_negative_flags(result_u8);
             bus.write(address, result_u8);
