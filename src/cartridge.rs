@@ -12,7 +12,6 @@ pub enum MirroringType {
 pub struct Cartridge {
     pub prg_rom: Vec<u8>,
     pub chr_rom: Vec<u8>,
-    pub mapper: u8,
     pub mapper_reader: MapperReadFn,
     pub mapper_writer: MapperWriteFn,
     pub mirroring: MirroringType,
@@ -61,7 +60,6 @@ impl Cartridge {
         Cartridge {
             prg_rom: Self::parse_prg_rom(&buffer, prg_size),
             chr_rom: Self::parse_chr_rom(&buffer, prg_size, chr_size),
-            mapper: mapper_number,
             mirroring: match buffer[6] & 0x1 {
                 0 => MirroringType::Horizontal,
                 1 => MirroringType::Vertical,

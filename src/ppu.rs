@@ -475,7 +475,6 @@ impl Ppu {
                 };
                 index as usize
             }
-            _ => (vram_addr % 2048) as usize,
         }
     }
 

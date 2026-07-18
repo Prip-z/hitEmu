@@ -30,7 +30,6 @@ pub enum AddressingMode {
     Absolute,
     AbsoluteX,
     AbsoluteY,
-    Implied,
     Indirect,
     IndirectX,
     IndirectY,
@@ -279,10 +278,10 @@ impl Cpu
             0x23 => self.rla(bus, IndirectX),
             0x33 => self.rla(bus, IndirectY),
 
-            0xCA => self.dex(bus, Implied),
-            0x88 => self.dey(bus, Implied),
-            0xE8 => self.inx(bus, Implied),
-            0xC8 => self.iny(bus, Implied),
+            0xCA => self.dex(),
+            0x88 => self.dey(),
+            0xE8 => self.inx(),
+            0xC8 => self.iny(),
 
             0x29 => self.and(bus, Immediate),
             0x25 => self.and(bus, ZeroPage),
@@ -594,12 +593,12 @@ impl Cpu
         self.update_zero_and_negative_flags(value);
     } 
 
-    fn dex(&mut self, bus: &mut impl Bus, addressing_mode: AddressingMode) {
+    fn dex(&mut self) {
         self.x = self.x.wrapping_sub(1);
         self.update_zero_and_negative_flags(self.x);
     } 
 
-    fn dey(&mut self, bus: &mut impl Bus, addressing_mode: AddressingMode) {
+    fn dey(&mut self) {
         self.y = self.y.wrapping_sub(1);
         self.update_zero_and_negative_flags(self.y);
     } 
@@ -618,12 +617,12 @@ impl Cpu
         self.update_zero_and_negative_flags(value);
     } 
 
-    fn inx(&mut self, bus: &mut impl Bus, addressing_mode: AddressingMode) {
+    fn inx(&mut self) {
         self.x = self.x.wrapping_add(1);
         self.update_zero_and_negative_flags(self.x);
     } 
 
-    fn iny(&mut self, bus: &mut impl Bus, addressing_mode: AddressingMode) {
+    fn iny(&mut self) {
         self.y = self.y.wrapping_add(1);
         self.update_zero_and_negative_flags(self.y);
     } 
@@ -766,7 +765,6 @@ impl Cpu
         let mut result = value << 1;
 
         result = self.a & result;
-        let old_a = self.a;
         self.a = self.update_carry_and_return_u8_result(result as u16);
         self.update_zero_and_negative_flags(self.a);
     }

@@ -1,14 +1,10 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_mut)]
-
 mod cpu;
 mod console;
 mod ppu;
 mod cartridge;
 mod joypad;
 
-use macroquad::prelude::*;
+use macroquad::{miniquad::conf::Platform, prelude::*};
 use console::Console;
 
 const NES_PALETTE: [(u8, u8, u8); 64] = [
@@ -30,16 +26,28 @@ const NES_PALETTE: [(u8, u8, u8); 64] = [
     (0x00, 0xF8, 0xFC), (0x00, 0x00, 0x00), (0x00, 0x00, 0x00), (0x00, 0x00, 0x00)
 ];
 
-#[macroquad::main("hitEmu")]
-async fn main() {
-    env_logger::init();
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "hitEmu".to_string(),
+        window_width: 256*3,
+        window_height: 240*3,
+        sample_count: 1,
+        fullscreen: false,
+        high_dpi: false,
+        icon: None,
+        platform: Platform::default(),
+        window_resizable: true,
+    }
+}
 
-    log::info!("Эмулятор запускается");
-    // let cartidge_data = cartridge::Cartridge::parse_rom("C:\\Users\\Admin\\Desktop\\hitEmu\\Donkey Kong (World) (Rev 1).nes");
-    let cartidge_data = cartridge::Cartridge::parse_rom("C:\\Users\\Admin\\Desktop\\hitEmu\\Super Mario Bros. (World).nes");
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    let cartidge_data = cartridge::Cartridge::parse_rom("C:\\Users\\Admin\\Desktop\\hitEmu\\Donkey Kong (World) (Rev 1).nes");
+    // let cartidge_data = cartridge::Cartridge::parse_rom("C:\\Users\\Admin\\Desktop\\hitEmu\\Super Mario Bros. (World).nes");
 
     let mut console = Console {
-        ram: console::Ram { ram: vec![0; 0x0800] },
+        ram: vec![0; 0x0800],
         ppu: ppu::Ppu::new(&cartidge_data),
         cartridge: cartidge_data,
         joypad: joypad::Joypad::new(),
@@ -51,7 +59,7 @@ async fn main() {
     let mut screen_image = Image::gen_image_color(256, 240, BLACK);
     let texture = Texture2D::from_image(&screen_image);
     texture.set_filter(FilterMode::Nearest);
-    
+
     loop {
         clear_background(BLACK);
 
@@ -89,7 +97,6 @@ async fn main() {
                 ..Default::default()
             },
         );
-
         next_frame().await;
     }
 }
